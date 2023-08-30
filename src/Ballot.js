@@ -1,14 +1,32 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
 
 function Ballot() {
 	const [format, setFormat] = useState("BP");
+	const speaks = {
+		PM: { name: "", speaks: 0 },
+		LO: { name: "", speaks: 0 },
+		DPM: { name: "", speaks: 0 },
+		DLO: { name: "", speaks: 0 },
+		MG: { name: "", speaks: 0 },
+		MO: { name: "", speaks: 0 },
+		GW: { name: "", speaks: 0 },
+		OW: { name: "", speaks: 0 },
+	};
 	const handleFormat = (e) => {
 		setFormat(e.target.value);
 	};
 	const [numPanelists, setNumPanelists] = useState(0);
-	const handlePM = () => {};
+	const handlePM = (e) => {};
+	const handleLO = (e) => {};
+	const handleDPM = (e) => {};
+	const handleDLO = (e) => {};
+	const handleMG = (e) => {};
+	const handleMO = (e) => {};
+	const handleGW = (e) => {};
+	const handleOW = (e) => {};
 	const handleNumPanelists = (e) => {
 		setNumPanelists(parseInt(e.target.value));
 	};
@@ -19,10 +37,13 @@ function Ballot() {
 				<h2 className="text-center">Ballot Form</h2>
 				<p className="text-center">
 					Attendance is based on ballots. Only chairs should submit this form.
-					<br></br>Score your judges in the{" "}
-					<a style={{ textDecoration: "none" }} href="/feedback">
-						feedback page
-					</a>
+					<br></br>If a speaker role is empty (e.g. in cases of top half
+					rounds), leave its field blank.
+					<br></br>Judges should be scored in the{" "}
+					<Link to="/feedback" style={{ textDecoration: "none" }}>
+						{" "}
+						feedback form
+					</Link>
 					.
 				</p>
 				<Row className="mt-5">
@@ -88,7 +109,7 @@ function Ballot() {
 							</Form.Group>
 							<Form.Group as={Col}>
 								<Form.Label>LO</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleLO}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -134,7 +155,7 @@ function Ballot() {
 						<Row className="mt-5">
 							<Form.Group as={Col}>
 								<Form.Label>DPM</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleDPM}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -178,7 +199,7 @@ function Ballot() {
 							</Form.Group>
 							<Form.Group as={Col}>
 								<Form.Label>DLO</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleDLO}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -224,7 +245,7 @@ function Ballot() {
 						<Row className="mt-5">
 							<Form.Group as={Col}>
 								<Form.Label>MG</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleMG}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -268,7 +289,7 @@ function Ballot() {
 							</Form.Group>
 							<Form.Group as={Col}>
 								<Form.Label>MO</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleMO}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -314,7 +335,7 @@ function Ballot() {
 						<Row className="mt-5">
 							<Form.Group as={Col}>
 								<Form.Label>GW</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleGW}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>
@@ -358,7 +379,7 @@ function Ballot() {
 							</Form.Group>
 							<Form.Group as={Col}>
 								<Form.Label>OW</Form.Label>
-								<Form.Select onChange={handlePM}>
+								<Form.Select onChange={handleOW}>
 									<option value="">--Select Speaker--</option>
 									<option value="Alexi Caraga">Alexi Caraga</option>
 									<option value="Angel Naguio">Angel Naguio</option>

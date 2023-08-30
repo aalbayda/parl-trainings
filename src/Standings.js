@@ -34,6 +34,9 @@ const Standings = () => {
 			{
 				columns,
 				data,
+				initialState: {
+					sortBy: [{ id: "name", desc: false }],
+				},
 			},
 			useSortBy
 		);
