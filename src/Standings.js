@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
@@ -39,49 +39,58 @@ const Standings = () => {
 		);
 
 	return (
-		<Container className="mt-5 align-items-center p-4 border rounded shadow">
-			<h2 className="text-center">Standings</h2>
-			{data ? (
-				<table {...getTableProps()} className="mt-5 table text-center">
-					<thead>
-						{headerGroups.map((headerGroup) => (
-							<tr {...headerGroup.getHeaderGroupProps()}>
-								{headerGroup.headers.map((column) => (
-									<th
-										{...column.getHeaderProps(column.getSortByToggleProps())}
-										className={
-											column.isSorted
-												? column.isSortedDesc
-													? "sort-desc"
-													: "sort-asc"
-												: ""
-										}
-									>
-										{column.render("Header")}
-									</th>
+		<>
+			<Container className="mt-5 align-items-center p-4 border rounded shadow">
+				<h2 className="text-center">Standings</h2>
+				{data ? (
+					<div style={{ overflowX: "auto" }}>
+						<table {...getTableProps()} className="mt-5 table text-center">
+							<thead>
+								{headerGroups.map((headerGroup) => (
+									<tr {...headerGroup.getHeaderGroupProps()}>
+										{headerGroup.headers.map((column) => (
+											<th
+												{...column.getHeaderProps(
+													column.getSortByToggleProps()
+												)}
+												className={
+													column.isSorted
+														? column.isSortedDesc
+															? "sort-desc"
+															: "sort-asc"
+														: ""
+												}
+											>
+												{column.render("Header")}
+											</th>
+										))}
+									</tr>
 								))}
-							</tr>
-						))}
-					</thead>
-					<tbody {...getTableBodyProps()}>
-						{rows.map((row) => {
-							prepareRow(row);
-							return (
-								<tr {...row.getRowProps()}>
-									{row.cells.map((cell) => {
-										return (
-											<td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-										);
-									})}
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-			) : (
-				<></>
-			)}
-		</Container>
+							</thead>
+							<tbody {...getTableBodyProps()}>
+								{rows.map((row) => {
+									prepareRow(row);
+									return (
+										<tr {...row.getRowProps()}>
+											{row.cells.map((cell) => {
+												return (
+													<td {...cell.getCellProps()}>
+														{cell.render("Cell")}
+													</td>
+												);
+											})}
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+				) : (
+					<></>
+				)}
+			</Container>
+			<p></p>
+		</>
 	);
 };
 
