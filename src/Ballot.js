@@ -489,6 +489,9 @@ function Ballot() {
 	};
 	const [numPanelists, setNumPanelists] = useState(0);
 	const handleNumPanelists = (e) => {
+		let newPanelists = [...panelists];
+		for (let i = 5; i >= e.target.value; i--) newPanelists[i] = "";
+		setPanelists(newPanelists);
 		setNumPanelists(parseInt(e.target.value));
 	};
 
