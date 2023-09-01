@@ -40,7 +40,8 @@ function ConfirmBallot({ ballot, show, onClose, onConfirm }) {
 				<br></br>
 				<b>Chair:</b> {ballot.chair}
 				<br></br>
-				<b>Panel:</b> {ballot.chair}
+				<b>Panel:</b>{" "}
+				{ballot.panelists ? ballot.panelists.join(", ") : ballot.panelists}
 				<br></br>
 				<b>Format:</b> {parseFormat(ballot.format)}
 				<br></br>

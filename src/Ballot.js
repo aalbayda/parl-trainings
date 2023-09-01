@@ -12,8 +12,10 @@ import {
 import { db } from "./firebase";
 import BallotField from "./BallotField";
 import ConfirmBallot from "./ConfirmBallot";
+import ErrorModal from "./ErrorModal";
 
 function Ballot() {
+	// Confirm ballot modal
 	const [showModal, setShowModal] = useState(false);
 	const handleClose = () => {
 		setShowModal(false);
@@ -21,9 +23,20 @@ function Ballot() {
 	const handleConfirm = () => {
 		handleClose();
 	};
+	// Error modal
+	const [showErrorModal, setShowErrorModal] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
+	const showError = (message) => {
+		setErrorMessage(message);
+		setShowErrorModal(true);
+	};
+	const hideError = () => {
+		setShowErrorModal(false);
+	};
 
 	const [chair, setChair] = useState([]);
 	const [residents, setResidents] = useState([]);
+	const [judgePool, setJudgePool] = useState([]);
 	const [ballot, setBallot] = useState({});
 
 	useEffect(() => {
@@ -59,6 +72,8 @@ function Ballot() {
 	const [moScore, setMOScore] = useState("");
 	const [gwScore, setGWScore] = useState("");
 	const [owScore, setOWScore] = useState("");
+	// Panelists
+	const [panelists, setPanelists] = useState(["", "", "", "", "", ""]);
 
 	const handleUpdate = async () => {
 		// Error: missing name(s)
@@ -73,7 +88,7 @@ function Ballot() {
 			if (!gwName) missingNames.push("GW");
 			if (!owName) missingNames.push("OW");
 			if (missingNames.length > 0) {
-				window.alert("Missing name(s) for: " + missingNames.join(", ") + ".");
+				showError("Missing name(s) for: " + missingNames.join(", ") + ".");
 				return;
 			}
 		} else if (format === "BPHalf") {
@@ -82,14 +97,14 @@ function Ballot() {
 			if (!dpmName) missingNames.push("DPM");
 			if (!dloName) missingNames.push("DLO");
 			if (missingNames.length > 0) {
-				window.alert("Missing name(s) for: " + missingNames.join(", ") + ".");
+				showError("Missing name(s) for: " + missingNames.join(", ") + ".");
 				return;
 			}
 		} else if (format === "PMLO") {
 			if (!pmName) missingNames.push("PM");
 			if (!loName) missingNames.push("LO");
 			if (missingNames.length > 0) {
-				window.alert("Missing name(s) for: " + missingNames.join(", ") + ".");
+				showError("Missing name(s) for: " + missingNames.join(", ") + ".");
 				return;
 			}
 		} else if (format === "AP" || format === "AU") {
@@ -100,7 +115,7 @@ function Ballot() {
 			if (!gwName) missingNames.push("GW");
 			if (!owName) missingNames.push("OW");
 			if (missingNames.length > 0) {
-				window.alert("Missing name(s) for: " + missingNames.join(", ") + ".");
+				showError("Missing name(s) for: " + missingNames.join(", ") + ".");
 				return;
 			}
 		}
@@ -122,7 +137,7 @@ function Ballot() {
 			if (owName && !owScore) missingScores.push("OW");
 		}
 		if (missingScores.length > 0) {
-			window.alert("Missing score(s) for " + missingScores.join(", ") + ".");
+			showError("Missing score(s) for " + missingScores.join(", ") + ".");
 			return;
 		}
 
@@ -137,7 +152,7 @@ function Ballot() {
 		if (gwName && gwScore < 50) invalidScores.push("GW");
 		if (owName && owScore < 50) invalidScores.push("OW");
 		if (invalidScores.length > 0) {
-			window.alert(
+			showError(
 				"Floor score is 50. Please fix the score(s) for " +
 					invalidScores.join(", ") +
 					"."
@@ -167,16 +182,49 @@ function Ballot() {
 				}
 			}
 		}
-		console.log(speakerNames);
-		console.log(duplicate_names);
-		console.log(duplicate_names.length);
 		if (duplicate_names.length > 0) {
-			console.log("REEEEEEE");
 			duplicate_names = Array.from(new Set(duplicate_names));
-			window.alert(
+			showError(
 				"The following speakers have been assigned more than once: " +
 					duplicate_names.join(", ") +
-					".\n\nSelect the Ironperson option from the dropdown in the case of an ironperson."
+					". Select the Ironperson option from the dropdown in the case of an ironperson."
+			);
+			return;
+		}
+
+		// Error: Duplicate judges
+		const unique_judges = new Set();
+		duplicate_names = [];
+		for (const panelist of panelists) {
+			if (panelist) {
+				if (unique_judges.has(panelist)) {
+					duplicate_names.push(panelist);
+				} else {
+					unique_judges.add(panelist);
+				}
+			}
+		}
+		if (duplicate_names.length > 0) {
+			duplicate_names = Array.from(new Set(duplicate_names));
+			showError(
+				"The following judges been selected than once: " +
+					duplicate_names.join(", ") +
+					"."
+			);
+			return;
+		}
+
+		// Error: One resident is assigned as a debater and as a judge
+		const allocated_debaters = new Set(speakerNames.filter((s) => s !== ""));
+		const allocated_judges = new Set(panelists.filter((p) => p !== ""));
+		const intersection = new Set(
+			[...allocated_debaters].filter((x) => allocated_judges.has(x))
+		);
+		if (intersection.size > 0) {
+			showError(
+				"The following residents have been allocated to a judge and speaker role at the same time: " +
+					Array.from(intersection).join(", ") +
+					"."
 			);
 			return;
 		}
@@ -184,7 +232,7 @@ function Ballot() {
 		// Calculate results
 		const newBallot = {
 			chair,
-			panel: [],
+			panelists: panelists.filter((p) => p !== ""),
 			date,
 			format,
 			pmName,
@@ -254,9 +302,9 @@ function Ballot() {
 		}
 		if (equalPairs.size > 0) {
 			if (format === "AP" || format === "AU") {
-				window.alert("Gov and Opp have the same total score!");
+				showError("Gov and Opp have the same total score!");
 			} else {
-				window.alert(
+				showError(
 					"The following teams have tied scores: " +
 						Array.from(equalPairs).join(", ") +
 						"."
@@ -568,9 +616,7 @@ function Ballot() {
 
 				<Row className="mt-5">
 					<Form.Group as={Col}>
-						<Form.Label>
-							Number of Panelists (excluding yourself, for attendance)
-						</Form.Label>
+						<Form.Label>Number of Panelists (excluding yourself)</Form.Label>
 						<Form.Select
 							className="mt-1"
 							value={numPanelists}
@@ -584,8 +630,11 @@ function Ballot() {
 							<option value="5">5</option>
 							<option value="6">6</option>
 						</Form.Select>
-						{Array.from({ length: numPanelists }, () => (
-							<Form.Select className="mt-1">
+						{Array.from({ length: numPanelists }, (_, i) => (
+							<Form.Select
+								onChange={(e) => (panelists[i] = e.target.value)}
+								className="mt-1"
+							>
 								<option value="">--Select Judge--</option>
 								{residents
 									.slice()
@@ -609,6 +658,11 @@ function Ballot() {
 						show={showModal}
 						onClose={handleClose}
 						onConfirm={handleConfirm}
+					/>
+					<ErrorModal
+						show={showErrorModal}
+						onHide={hideError}
+						errorMessage={errorMessage}
 					/>
 				</Row>
 			</Form>
