@@ -35,6 +35,9 @@ function Navigation() {
 						<Nav.Link as={Link} to="/standings">
 							Standings
 						</Nav.Link>
+						<Nav.Link as={Link} to="/standings">
+							Records
+						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
 				<Navbar.Collapse className="justify-content-end">

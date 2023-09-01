@@ -8,8 +8,8 @@ function Feedback() {
 			<Form className="mb-5 p-4 border rounded shadow">
 				<h2 className="text-center">Feedback Form</h2>
 				<p className="text-center">
-					Note that feedbacks won't fully reflect until the ballot form for the
-					round has been submitted.
+					Feedbacks won't fully reflect until the ballot form for the round has
+					been submitted.
 				</p>
 				<Form.Group as={Row} className="mt-3">
 					<Form.Label>Date of Round</Form.Label>
