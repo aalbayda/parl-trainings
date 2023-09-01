@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
@@ -25,7 +25,6 @@ const Standings = () => {
 				id: doc.id,
 			}));
 			setData(newData);
-			console.log(newData);
 		});
 	}, []);
 
