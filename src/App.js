@@ -18,7 +18,7 @@ function App() {
 				<Route path="/ballot" element={<Ballot />} />
 				<Route path="/feedback" element={<Feedback />} />
 				<Route path="/motions" element={<Motions />} />
-				<Route path="/Standings" element={<Standings />} />
+				<Route path="/standings" element={<Standings />} />
 				<Route path="/trainings" element={<Trainings />} />
 			</Routes>
 		</Router>
