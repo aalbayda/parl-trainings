@@ -47,10 +47,14 @@ function Ballot() {
 	useEffect(() => {
 		checkIsLoggedIn();
 		getDocs(collection(db, "residents")).then((querySnapshot) => {
-			const firebase_residents = querySnapshot.docs.map((doc) => ({
+			let firebase_residents = querySnapshot.docs.map((doc) => ({
 				...doc.data(),
 				id: doc.id,
 			}));
+			firebase_residents = firebase_residents.filter(
+				(resident) => resident.name !== decryptToken()["tabName"]
+			);
+			console.log(firebase_residents);
 			setResidents(firebase_residents);
 		});
 	}, []);

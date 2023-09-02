@@ -48,6 +48,8 @@ function ConfirmBallot({ ballot, show, onClose, onConfirm }) {
 				<br></br>
 				<b>Format:</b> {parseFormat(ballot.format)}
 				<br></br>
+				<b>Motion:</b> {ballot.motion}
+				<br></br>
 				<br></br>
 				<Row>
 					<Col className="text-center">
