@@ -3,6 +3,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
 import {
 	collection,
+	addDoc,
 	query,
 	where,
 	getDocs,
@@ -13,15 +14,24 @@ import { db } from "./firebase";
 import BallotField from "./BallotField";
 import ConfirmBallot from "./ConfirmBallot";
 import ErrorModal from "./ErrorModal";
+import { isLoggedIn, decryptToken } from "./auth";
 
 function Ballot() {
-	// Confirm ballot modal
-	const [showModal, setShowModal] = useState(false);
-	const handleClose = () => {
-		setShowModal(false);
-	};
-	const handleConfirm = () => {
-		handleClose();
+	// Data
+	const [chair, setChair] = useState("");
+	const [residents, setResidents] = useState([]);
+	const [ballot, setBallot] = useState({});
+	// Authentication
+	const [loggedIn, setLoggedIn] = useState(false);
+	const checkIsLoggedIn = async () => {
+		return await isLoggedIn()
+			.then((res) => {
+				setChair(decryptToken().tabName);
+				setLoggedIn(res);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
 	};
 	// Error modal
 	const [showErrorModal, setShowErrorModal] = useState(false);
@@ -34,12 +44,8 @@ function Ballot() {
 		setShowErrorModal(false);
 	};
 
-	const [chair, setChair] = useState([]);
-	const [residents, setResidents] = useState([]);
-	const [judgePool, setJudgePool] = useState([]);
-	const [ballot, setBallot] = useState({});
-
 	useEffect(() => {
+		checkIsLoggedIn();
 		getDocs(collection(db, "residents")).then((querySnapshot) => {
 			const firebase_residents = querySnapshot.docs.map((doc) => ({
 				...doc.data(),
@@ -56,6 +62,7 @@ function Ballot() {
 			"0"
 		)}-${String(new Date().getDate()).padStart(2, "0")}`
 	);
+	const [time, setTime] = useState("");
 	const [pmName, setPMName] = useState("");
 	const [loName, setLOName] = useState("");
 	const [dpmName, setDPMName] = useState("");
@@ -72,10 +79,114 @@ function Ballot() {
 	const [moScore, setMOScore] = useState("");
 	const [gwScore, setGWScore] = useState("");
 	const [owScore, setOWScore] = useState("");
-	// Panelists
 	const [panelists, setPanelists] = useState(["", "", "", "", "", ""]);
 
-	const handleUpdate = async () => {
+	const [motion, setMotion] = useState("");
+	const [infoslide, setInfoslide] = useState("");
+	const [theme, setTheme] = useState("");
+
+	// Confirm ballot modal
+	const [showModal, setShowModal] = useState(false);
+	const handleClose = () => {
+		setShowModal(false);
+	};
+	const handleConfirm = () => {
+		const speakerScores = [
+			pmScore,
+			loScore,
+			dpmScore,
+			dloScore,
+			mgScore,
+			moScore,
+			gwScore,
+			owScore,
+		];
+		const speakerRoles = ["PM", "LO", "DPM", "DLO", "MG", "MO", "GW", "OW"];
+		const findTeam = (role) => {
+			if (role === "PM" || role === "DPM") {
+				if (format === "AP" || format === "AU") {
+					return "Gov";
+				} else return "OG";
+			}
+			if (role === "LO" || role === "DLO") {
+				if (format === "AP" || format === "AU") {
+					return "Opp";
+				} else return "OO";
+			}
+			if (role === "MG" || role === "GW") return "CG";
+			if (role === "OW" || role === "MO") return "CO";
+		};
+		const findRank = (team) => {
+			if (ballot.first === team) return "1st";
+			if (ballot.second === team) return "2nd";
+			if (ballot.third === team) return "3rd";
+			if (ballot.fourth === team) return "4th";
+		};
+		// Update scores, attendance of debaters
+		const speakerNames = [
+			pmName,
+			loName,
+			dpmName,
+			dloName,
+			mgName,
+			moName,
+			gwName,
+			owName,
+		];
+		let collectionRef = collection(db, "residents");
+		speakerNames
+			.filter((name) => name !== "")
+			.map(async (speaker) => {
+				let q = query(collectionRef, where("name", "==", speaker));
+				let querySnapshot = await getDocs(q);
+				let position = speakerRoles[speakerNames.indexOf(speaker)];
+				let team = findTeam(position);
+				let rank = findRank(team);
+
+				querySnapshot.forEach(async (docSnapshot) => {
+					let docRef = doc(db, "residents", docSnapshot.id);
+					let data = docSnapshot.data();
+					await updateDoc(docRef, {
+						attendance: data.attendance + 1,
+						count_rounds_debated: data.count_rounds_debated + 1,
+						average_speaker_score:
+							(data.average_speaker_score * data.count_rounds_debated +
+								speakerScores[speakerNames.indexOf(speaker)]) /
+							(data.count_rounds_debated + 1),
+						rounds: [...data.rounds, { ballot, position, rank }],
+						rounds_won: rank === "1st" ? data.rounds_won + 1 : data.rounds_won,
+					});
+				});
+			});
+		// Update attendance of chair and panel
+		const allocated_judges = new Set(panelists.filter((p) => p !== ""));
+		Array.from([...allocated_judges, chair]).map(async (judge) => {
+			let q = query(collectionRef, where("name", "==", judge));
+			let querySnapshot = await getDocs(q);
+
+			querySnapshot.forEach(async (docSnapshot) => {
+				let docRef = doc(db, "residents", docSnapshot.id);
+				let data = docSnapshot.data();
+				await updateDoc(docRef, {
+					attendance: data.attendance + 1,
+					count_rounds_judged: data.count_rounds_judged + 1,
+				});
+			});
+		});
+		// Update ballot history
+		collectionRef = collection(db, "ballots");
+		addDoc(collectionRef, ballot)
+			.then(() => {
+				console.log("Added ballot.");
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+		setTimeout(() => window.location.reload(), 1000);
+		handleClose();
+	};
+
+	const handleUpdate = () => {
 		// Error: missing name(s)
 		const missingNames = [];
 		if (format === "BP") {
@@ -174,7 +285,7 @@ function Ballot() {
 		const unique_names = new Set();
 		let duplicate_names = [];
 		for (const speakerName of speakerNames) {
-			if (speakerName && speakerName !== "iron") {
+			if (speakerName && speakerName !== "iron" && speakerName !== "guest") {
 				if (unique_names.has(speakerName)) {
 					duplicate_names.push(speakerName);
 				} else {
@@ -207,7 +318,7 @@ function Ballot() {
 		if (duplicate_names.length > 0) {
 			duplicate_names = Array.from(new Set(duplicate_names));
 			showError(
-				"The following judges been selected than once: " +
+				"The following judges have been selected more than once: " +
 					duplicate_names.join(", ") +
 					"."
 			);
@@ -233,7 +344,9 @@ function Ballot() {
 		const newBallot = {
 			chair,
 			panelists: panelists.filter((p) => p !== ""),
+			motion,
 			date,
+			time,
 			format,
 			pmName,
 			pmScore,
@@ -319,150 +432,16 @@ function Ballot() {
 			.sort((a, b) => a[1] - b[1])
 			.map((team) => team[0])
 			.reverse();
-		console.log(ordered_teams);
 		newBallot.first = ordered_teams[0];
 		newBallot.second = ordered_teams[1];
 		if (format === "BP") {
 			newBallot.third = ordered_teams[2];
 			newBallot.fourth = ordered_teams[3];
 		}
-		setBallot(newBallot);
 
 		// Confirm ballot
+		setBallot(newBallot);
 		setShowModal(true);
-
-		// Update scores
-		// if (ballot) {
-		// 	const collectionRef = collection(db, "residents");
-		// 	if (pmName !== pmName && pmName !== "iron" && pmScore) {
-		// 		let q = query(collectionRef, where("name", "==", pmName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						pmScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (loName && loName !== "iron" && loScore) {
-		// 		let q = query(collectionRef, where("name", "==", loName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						loScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (dpmName && dpmName !== "iron" && dpmScore) {
-		// 		let q = query(collectionRef, where("name", "==", dpmName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						loScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (dloName && dloName !== "iron" && dloScore) {
-		// 		let q = query(collectionRef, where("name", "==", dloName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						dloScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (mgName && mgName !== "iron" && mgScore) {
-		// 		let q = query(collectionRef, where("name", "==", mgName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						mgScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (moName && moName !== "iron" && moScore) {
-		// 		let q = query(collectionRef, where("name", "==", moName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						moScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (gwName && gwName !== "iron" && gwScore) {
-		// 		let q = query(collectionRef, where("name", "==", gwName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						gwScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// 	if (owName && owName !== "iron" && owScore) {
-		// 		let q = query(collectionRef, where("name", "==", owName));
-		// 		let querySnapshot = await getDocs(q);
-		// 		querySnapshot.forEach(async (docSnapshot) => {
-		// 			let docRef = doc(db, "residents", docSnapshot.id);
-		// 			await updateDoc(docRef, {
-		// 				attendance: docSnapshot.data().attendance + 1,
-		// 				count_rounds_debated: docSnapshot.data().count_rounds_debated + 1,
-		// 				average_speaker_score:
-		// 					(docSnapshot.data().average_speaker_score *
-		// 						docSnapshot.data().count_rounds_debated +
-		// 						owScore) /
-		// 					(docSnapshot.data().count_rounds_debated + 1),
-		// 			});
-		// 		});
-		// 	}
-		// }
 	};
 
 	const handleFormat = (e) => {
@@ -497,179 +476,191 @@ function Ballot() {
 
 	return (
 		<Container className="mt-5 justify-content-center align-items-center vh-100">
-			<Form className="mb-5 p-4 border rounded shadow">
-				<h2 className="text-center">Ballot Form</h2>
-				<p className="text-center">
-					Attendance is based on ballots. Only chairs should submit this form.
-					<br></br>In the event of an ironperson, select "Ironperson" from the
-					dropdown.
-					<br></br>Judges should be scored in the feedback form.
-				</p>
-				<Row className="mt-5">
-					<Form.Group as={Col}>
-						<Form.Label>Date of Round</Form.Label>
-						<Form.Control
-							type="date"
-							name="date"
-							defaultValue={date}
-							onChange={(e) => setDate(e.target.value)}
-						/>
-					</Form.Group>
-					<Form.Group as={Col}>
-						<Form.Label>Format</Form.Label>
-						<Form.Select onChange={handleFormat}>
-							<option value="BP">British Parliamentary (Full Set)</option>
-							<option value="BPHalf">
-								British Parliamentary (Opening Half)
-							</option>
-							<option value="PMLO">PM-LO Exchange</option>
-							<option value="AP">Asian Parliamentary</option>
-							<option value="AU">Australs</option>
-						</Form.Select>
-					</Form.Group>
-				</Row>
-				<Col>
+			{loggedIn ? (
+				<Form className="mb-5 p-4 border rounded shadow">
+					<h2 className="text-center">Ballot Form</h2>
+					<p className="text-center">
+						Attendance is based on ballots. Only chairs should submit this form.
+						<br></br>In the event of an ironperson, select "Ironperson" from the
+						dropdown.
+						<br></br>Judges' attendance is noted here but they should still be
+						scored via the feedback form.
+					</p>
 					<Row className="mt-5">
-						<BallotField
-							role="PM"
-							selectedName={pmName}
-							selectedScore={pmScore}
-							residents={residents}
-							handleName={setPMName}
-							handleScore={setPMScore}
+						<Form.Group as={Col}>
+							<Form.Label>Date of Round</Form.Label>
+							<Form.Control
+								type="date"
+								name="date"
+								defaultValue={date}
+								onChange={(e) => setDate(e.target.value)}
+							/>
+						</Form.Group>
+						<Form.Group as={Col}>
+							<Form.Label>Time</Form.Label>
+							<Form.Select onChange={(e) => setTime(e.target.value)}>
+								<option value="3PM">3PM</option>
+								<option value="5PM">5PM</option>
+								<option value="7PM">7PM</option>
+							</Form.Select>
+						</Form.Group>
+						<Form.Group xs={6} as={Col}>
+							<Form.Label>Format</Form.Label>
+							<Form.Select onChange={handleFormat}>
+								<option value="BP">British Parliamentary (Full Set)</option>
+								<option value="BPHalf">
+									British Parliamentary (Opening Half)
+								</option>
+								<option value="PMLO">PM-LO Exchange</option>
+								<option value="AP">Asian Parliamentary</option>
+								<option value="AU">Australs</option>
+							</Form.Select>
+						</Form.Group>
+					</Row>
+					<Col>
+						<Row className="mt-5">
+							<BallotField
+								role="PM"
+								selectedName={pmName}
+								selectedScore={pmScore}
+								residents={residents}
+								handleName={setPMName}
+								handleScore={setPMScore}
+							/>
+							<BallotField
+								role="LO"
+								selectedName={loName}
+								selectedScore={loScore}
+								residents={residents}
+								handleName={setLOName}
+								handleScore={setLOScore}
+							/>
+						</Row>
+						{format !== "PMLO" ? (
+							<div>
+								<Row className="mt-5">
+									<BallotField
+										role="DPM"
+										selectedName={dpmName}
+										selectedScore={dpmScore}
+										residents={residents}
+										handleName={setDPMName}
+										handleScore={setDPMScore}
+									/>
+									<BallotField
+										role="DLO"
+										selectedName={dloName}
+										selectedScore={dloScore}
+										residents={residents}
+										handleName={setDLOName}
+										handleScore={setDLOScore}
+									/>
+								</Row>
+								{format === "BP" ? (
+									<Row className="mt-5">
+										<BallotField
+											role="MG"
+											selectedName={mgName}
+											selectedScore={mgScore}
+											residents={residents}
+											handleName={setMGName}
+											handleScore={setMGScore}
+										/>
+										<BallotField
+											role="MO"
+											selectedName={moName}
+											selectedScore={moScore}
+											residents={residents}
+											handleName={setMOName}
+											handleScore={setMOScore}
+										/>
+									</Row>
+								) : (
+									<></>
+								)}
+								{format !== "BPHalf" ? (
+									<Row className="mt-5">
+										<BallotField
+											role="GW"
+											selectedName={gwName}
+											selectedScore={gwScore}
+											residents={residents}
+											handleName={setGWName}
+											handleScore={setGWScore}
+										/>
+										<BallotField
+											role="OW"
+											selectedName={owName}
+											selectedScore={owScore}
+											residents={residents}
+											handleName={setOWName}
+											handleScore={setOWScore}
+										/>
+									</Row>
+								) : (
+									<></>
+								)}
+							</div>
+						) : (
+							<></>
+						)}
+					</Col>
+
+					<Row className="mt-5">
+						<Form.Group as={Col}>
+							<Form.Label>Number of Panelists (excluding yourself)</Form.Label>
+							<Form.Select
+								className="mt-1"
+								value={numPanelists}
+								onChange={handleNumPanelists}
+							>
+								<option value="0">0 (solo chair)</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+							</Form.Select>
+							{Array.from({ length: numPanelists }, (_, i) => (
+								<Form.Select
+									onChange={(e) => (panelists[i] = e.target.value)}
+									className="mt-1"
+								>
+									<option value="">--Select Judge--</option>
+									{residents
+										.slice()
+										.sort((a, b) => a.name.localeCompare(b.name))
+										.map((resident) => (
+											<option key={resident.name} value={resident.name}>
+												{resident.name}
+											</option>
+										))}
+								</Form.Select>
+							))}
+						</Form.Group>
+					</Row>
+
+					<Row className="mt-5">
+						<Button onClick={handleUpdate} variant="success">
+							Submit Ballot
+						</Button>
+						<ConfirmBallot
+							ballot={ballot}
+							show={showModal}
+							onClose={handleClose}
+							onConfirm={handleConfirm}
 						/>
-						<BallotField
-							role="LO"
-							selectedName={loName}
-							selectedScore={loScore}
-							residents={residents}
-							handleName={setLOName}
-							handleScore={setLOScore}
+						<ErrorModal
+							show={showErrorModal}
+							onHide={hideError}
+							errorMessage={errorMessage}
 						/>
 					</Row>
-					{format !== "PMLO" ? (
-						<div>
-							<Row className="mt-5">
-								<BallotField
-									role="DPM"
-									selectedName={dpmName}
-									selectedScore={dpmScore}
-									residents={residents}
-									handleName={setDPMName}
-									handleScore={setDPMScore}
-								/>
-								<BallotField
-									role="DLO"
-									selectedName={dloName}
-									selectedScore={dloScore}
-									residents={residents}
-									handleName={setDLOName}
-									handleScore={setDLOScore}
-								/>
-							</Row>
-							{format === "BP" ? (
-								<Row className="mt-5">
-									<BallotField
-										role="MG"
-										selectedName={mgName}
-										selectedScore={mgScore}
-										residents={residents}
-										handleName={setMGName}
-										handleScore={setMGScore}
-									/>
-									<BallotField
-										role="MO"
-										selectedName={moName}
-										selectedScore={moScore}
-										residents={residents}
-										handleName={setMOName}
-										handleScore={setMOScore}
-									/>
-								</Row>
-							) : (
-								<></>
-							)}
-							{format !== "BPHalf" ? (
-								<Row className="mt-5">
-									<BallotField
-										role="GW"
-										selectedName={gwName}
-										selectedScore={gwScore}
-										residents={residents}
-										handleName={setGWName}
-										handleScore={setGWScore}
-									/>
-									<BallotField
-										role="OW"
-										selectedName={owName}
-										selectedScore={owScore}
-										residents={residents}
-										handleName={setOWName}
-										handleScore={setOWScore}
-									/>
-								</Row>
-							) : (
-								<></>
-							)}
-						</div>
-					) : (
-						<></>
-					)}
-				</Col>
-
-				<Row className="mt-5">
-					<Form.Group as={Col}>
-						<Form.Label>Number of Panelists (excluding yourself)</Form.Label>
-						<Form.Select
-							className="mt-1"
-							value={numPanelists}
-							onChange={handleNumPanelists}
-						>
-							<option value="0">0 (solo chair)</option>
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-						</Form.Select>
-						{Array.from({ length: numPanelists }, (_, i) => (
-							<Form.Select
-								onChange={(e) => (panelists[i] = e.target.value)}
-								className="mt-1"
-							>
-								<option value="">--Select Judge--</option>
-								{residents
-									.slice()
-									.sort((a, b) => a.name.localeCompare(b.name))
-									.map((resident) => (
-										<option key={resident.name} value={resident.name}>
-											{resident.name}
-										</option>
-									))}
-							</Form.Select>
-						))}
-					</Form.Group>
-				</Row>
-
-				<Row className="mt-5">
-					<Button onClick={handleUpdate} variant="success">
-						Submit Ballot
-					</Button>
-					<ConfirmBallot
-						ballot={ballot}
-						show={showModal}
-						onClose={handleClose}
-						onConfirm={handleConfirm}
-					/>
-					<ErrorModal
-						show={showErrorModal}
-						onHide={hideError}
-						errorMessage={errorMessage}
-					/>
-				</Row>
-			</Form>
-			&nbsp;
+				</Form>
+			) : (
+				<p>You need to be logged in to enter ballots.</p>
+			)}
 		</Container>
 	);
 }

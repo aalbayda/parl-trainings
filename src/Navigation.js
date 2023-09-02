@@ -1,8 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { signInWithGoogle } from "./firebase";
+import { isLoggedIn } from "./auth";
 
 function Navigation() {
+	const [loggedIn, setLoggedIn] = useState(false);
+
+	const logout = () => {
+		document.cookie =
+			"authCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		window.location.href = "/";
+		localStorage.removeItem("authCookie");
+		setLoggedIn(false);
+	};
+
+	const checkIsLoggedIn = async () => {
+		return await isLoggedIn()
+			.then((res) => setLoggedIn(res))
+			.catch((err) => {
+				console.error(err);
+			});
+	};
+
+	useState(() => {
+		checkIsLoggedIn();
+	}, []);
+
 	return (
 		<Navbar
 			bg="dark"
@@ -42,7 +66,10 @@ function Navigation() {
 				</Navbar.Collapse>
 				<Navbar.Collapse className="justify-content-end">
 					<Nav>
-						<Nav.Link>Login</Nav.Link>
+						{loggedIn === true ? <Nav.Link>Profile</Nav.Link> : <></>}
+						<Nav.Link onClick={loggedIn === true ? logout : signInWithGoogle}>
+							{loggedIn === true ? "Logout" : "Login"}
+						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
 			</Container>

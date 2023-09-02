@@ -42,8 +42,13 @@ const Standings = () => {
 
 	return (
 		<>
-			<Container className="mt-5 align-items-center p-4 border rounded shadow">
-				<h2 className="text-center">Standings</h2>
+			<Container className="mt-5 text-center align-items-center p-4 border rounded shadow">
+				<h2>Standings</h2>
+				<p>
+					Residents' standings since September 1, 2023 based on submitted
+					ballots and feedback.
+				</p>
+				<p>The latest submitted ballot was from...</p>
 				{data ? (
 					<div style={{ overflowX: "auto" }}>
 						<table {...getTableProps()} className="mt-5 table text-center">
@@ -64,6 +69,15 @@ const Standings = () => {
 												}
 											>
 												{column.render("Header")}
+												{column.isSorted ? (
+													column.isSortedDesc ? (
+														<span>&darr;</span> // Down arrow for descending sort
+													) : (
+														<span>&uarr;</span> // Up arrow for ascending sort
+													)
+												) : (
+													<span>&darr;&uarr;</span> // Both arrows for default state
+												)}
 											</th>
 										))}
 									</tr>

@@ -19,15 +19,20 @@ function BallotField({
 				}}
 			>
 				<option value="">--Select Debater--</option>
-				<option value="iron">Ironperson</option>
-				{residents
-					.slice()
-					.sort((a, b) => a.name.localeCompare(b.name))
-					.map((resident) => (
-						<option key={resident.name} value={resident.name}>
-							{resident.name}
-						</option>
-					))}
+				<optgroup label="Residents">
+					{residents
+						.slice()
+						.sort((a, b) => a.name.localeCompare(b.name))
+						.map((resident) => (
+							<option key={resident.name} value={resident.name}>
+								{resident.name}
+							</option>
+						))}
+				</optgroup>
+				<optgroup label="Edge Cases">
+					<option value="iron">Ironperson</option>
+					<option value="guest">Guest</option>
+				</optgroup>
 			</Form.Select>
 			{selectedName ? (
 				<Form.Control

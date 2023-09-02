@@ -41,7 +41,7 @@ function ConfirmBallot({ ballot, show, onClose, onConfirm }) {
 				<b>Chair:</b> {ballot.chair}
 				<br></br>
 				<b>Panel:</b>{" "}
-				{ballot.panelists ? ballot.panelists.join(", ") : ballot.panelists}
+				{ballot.panelists.length > 0 ? ballot.panelists.join(", ") : "N/A"}
 				<br></br>
 				<b>Format:</b> {parseFormat(ballot.format)}
 				<br></br>
