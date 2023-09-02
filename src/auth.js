@@ -27,13 +27,13 @@ export async function isLoggedIn() {
 		const docs = await getDocs(collection(db, "residents"));
 		for (const doc of docs.docs) {
 			let residentName = doc.data().name;
-			if (residentName.split(" ")[1] === tokenName.split(" ")[1]) {
-				console.log("Validated email for " + residentName.split(" ")[1]);
+			if (
+				residentName.split(" ").slice(-1)[0] ===
+				tokenName.split(" ").slice(-1)[0]
+			) {
 				return true;
 			}
 		}
 	}
-
-	console.log("Name not in database.");
 	return false;
 }

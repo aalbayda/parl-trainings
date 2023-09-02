@@ -36,7 +36,8 @@ function ConfirmBallot({ ballot, show, onClose, onConfirm }) {
 					year: "numeric",
 					month: "long",
 					day: "numeric",
-				})}
+				})}{" "}
+				@{ballot.time}
 				<br></br>
 				<b>Chair:</b> {ballot.chair}
 				<br></br>

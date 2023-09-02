@@ -22,7 +22,7 @@ function Ballot() {
 	const [residents, setResidents] = useState([]);
 	const [ballot, setBallot] = useState({});
 	// Authentication
-	const [loggedIn, setLoggedIn] = useState(false);
+	const [loggedIn, setLoggedIn] = useState(true);
 	const checkIsLoggedIn = async () => {
 		return await isLoggedIn()
 			.then((res) => {
@@ -62,7 +62,7 @@ function Ballot() {
 			"0"
 		)}-${String(new Date().getDate()).padStart(2, "0")}`
 	);
-	const [time, setTime] = useState("");
+	const [time, setTime] = useState("3PM");
 	const [pmName, setPMName] = useState("");
 	const [loName, setLOName] = useState("");
 	const [dpmName, setDPMName] = useState("");
@@ -187,6 +187,15 @@ function Ballot() {
 	};
 
 	const handleUpdate = () => {
+		// Error: missing motion
+		if (!theme) {
+			showError("Missing motion theme!");
+			return;
+		}
+		if (!motion) {
+			showError("Missing motion!");
+			return;
+		}
 		// Error: missing name(s)
 		const missingNames = [];
 		if (format === "BP") {
@@ -345,6 +354,7 @@ function Ballot() {
 			chair,
 			panelists: panelists.filter((p) => p !== ""),
 			motion,
+			theme,
 			date,
 			time,
 			format,
@@ -515,6 +525,34 @@ function Ballot() {
 								<option value="AP">Asian Parliamentary</option>
 								<option value="AU">Australs</option>
 							</Form.Select>
+						</Form.Group>
+					</Row>
+					<Row className="mt-5">
+						<Form.Group as={Col}>
+							<Form.Label>Motion Theme</Form.Label>
+							<Form.Select
+								onChange={(e) => setTheme(e.target.value)}
+								className="mt-1"
+							>
+								<option value="">--Select Motion Theme--</option>
+								<option value="ir">International Relations</option>
+								<option value="intl_politics">Politics</option>
+								<option value="cjs">Criminal Justice</option>
+								<option value="philosophy">Philosophy</option>
+								<option value="art">Art</option>
+								<option value="media">Media</option>
+								<option value="movements">Social Movements</option>
+								<option value="econ">Economics and Finance</option>
+								<option value="religion">Religion</option>
+							</Form.Select>
+						</Form.Group>
+						<Form.Group as={Col} xs={8}>
+							<Form.Label>Motion</Form.Label>
+							<Form.Control
+								onChange={(e) => setMotion(e.target.value)}
+								placeholder="Enter motion"
+								type="text"
+							/>
 						</Form.Group>
 					</Row>
 					<Col>
