@@ -195,7 +195,9 @@ function Feedback() {
 		);
 		let querySnapshot = await getDocs(q);
 		if (querySnapshot.size > 0) {
-			showError("You've already submitted a feedback for this round!");
+			showError(
+				"You've already submitted a feedback to this judge for this round!"
+			);
 			return;
 		}
 		// Update state
