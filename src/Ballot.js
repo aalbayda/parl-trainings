@@ -571,7 +571,10 @@ function Ballot() {
 								<option value="">--Select Motion Theme--</option>
 								<option value="art">Art</option>
 								<option value="cjs">Criminal Justice</option>
-								<option value="econ">Economics and Finance</option>
+								<option value="econ">Economics</option>
+								<option value="feminism">Feminism</option>
+								<option value="finance">Finance</option>
+								<option value="gender">Gender</option>
 								<option value="ir">International Relations</option>
 								<option value="media">Media and Narratives</option>
 								<option value="philosophy">Philosophy</option>

@@ -183,7 +183,7 @@ function Records() {
 					</div>
 				</Container>
 			) : (
-				<p className="text-center mt-5">No ballots yet...</p>
+				<></>
 			)}
 
 			<p></p>

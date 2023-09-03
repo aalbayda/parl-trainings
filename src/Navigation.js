@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Navbar, Container, Nav } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { signInWithGoogle } from "./firebase";
+import { signInWithGoogle, signInWithGoogleMobile } from "./firebase";
 import { isLoggedIn } from "./auth";
 
 function Navigation() {
 	const [loggedIn, setLoggedIn] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
 
 	const logout = () => {
 		document.cookie =
@@ -25,6 +26,17 @@ function Navigation() {
 
 	useState(() => {
 		checkIsLoggedIn();
+	}, []);
+
+	useEffect(() => {
+		const checkIsMobile = () => {
+			setIsMobile(window.innerWidth < 768); // Adjust the breakpoint as needed
+		};
+		checkIsMobile();
+		window.addEventListener("resize", checkIsMobile);
+		return () => {
+			window.removeEventListener("resize", checkIsMobile);
+		};
 	}, []);
 
 	return (
@@ -67,7 +79,15 @@ function Navigation() {
 				<Navbar.Collapse className="justify-content-end">
 					<Nav>
 						{/* {loggedIn === true ? <Nav.Link>Profile</Nav.Link> : <></>} */}
-						<Nav.Link onClick={loggedIn === true ? logout : signInWithGoogle}>
+						<Nav.Link
+							onClick={
+								loggedIn === true
+									? logout
+									: !isMobile
+									? signInWithGoogle
+									: signInWithGoogleMobile
+							}
+						>
 							{loggedIn === true ? "Logout" : "Login"}
 						</Nav.Link>
 					</Nav>

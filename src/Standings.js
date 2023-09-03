@@ -8,7 +8,7 @@ import { decryptToken } from "./auth";
 
 const columns = [
 	{ Header: "Name", accessor: "name" },
-	{ Header: "Track", accessor: "track" },
+	// { Header: "Track", accessor: "track" },
 	{ Header: "Total Attendance", accessor: "attendance" },
 	{ Header: "Rounds Debated", accessor: "count_rounds_debated" },
 	{ Header: "Number of Wins", accessor: "rounds_won" },
@@ -26,7 +26,10 @@ const Standings = () => {
 				...doc.data(),
 				id: doc.id,
 			}));
-			residents = residents.filter((resident) => resident.track !== "Inactive");
+			residents = residents.filter(
+				(resident) =>
+					resident.track !== "Inactive" && resident.track !== "Admin"
+			);
 			setData(residents);
 		});
 	}, []);
@@ -47,11 +50,10 @@ const Standings = () => {
 		<>
 			<Container className="mt-5 text-center align-items-center p-4 border rounded shadow">
 				<h2>Standings</h2>
-				<p>
+				{/* <p>
 					Residents' standings since September 1, 2023 based on submitted
 					ballots and feedback.
-				</p>
-
+				</p> */}
 				{data ? (
 					<div style={{ overflowX: "auto" }}>
 						<table {...getTableProps()} className="mt-5 table text-center">
