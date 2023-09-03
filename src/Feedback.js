@@ -303,7 +303,9 @@ function Feedback() {
 					/>
 				</Form>
 			) : (
-				<p>You need to be logged in to submit feedback.</p>
+				<p className="text-center">
+					You need to be logged in to submit feedback.
+				</p>
 			)}
 		</Container>
 	);

@@ -756,7 +756,9 @@ function Ballot() {
 					</Row>
 				</Form>
 			) : (
-				<p>You need to be logged in to enter ballots.</p>
+				<p className="text-center">
+					You need to be logged in to submit ballots.
+				</p>
 			)}
 			&nbsp;
 		</Container>

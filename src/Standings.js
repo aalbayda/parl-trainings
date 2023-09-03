@@ -3,7 +3,7 @@ import { db } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useTable, useSortBy } from "react-table";
-import { reset_db } from "./update_db";
+import { reset_db, add_db } from "./update_db";
 import { decryptToken } from "./auth";
 
 const columns = [
@@ -22,11 +22,12 @@ const Standings = () => {
 
 	useEffect(() => {
 		getDocs(collection(db, "residents")).then((querySnapshot) => {
-			const newData = querySnapshot.docs.map((doc) => ({
+			let residents = querySnapshot.docs.map((doc) => ({
 				...doc.data(),
 				id: doc.id,
 			}));
-			setData(newData);
+			residents = residents.filter((resident) => resident.track !== "Inactive");
+			setData(residents);
 		});
 	}, []);
 
@@ -50,12 +51,7 @@ const Standings = () => {
 					Residents' standings since September 1, 2023 based on submitted
 					ballots and feedback.
 				</p>
-				{/* {decryptToken().tabName === "Bob Albayda" ? (
-					<button onClick={reset_db}>RESET DB</button>
-				) : (
-					<></>
-				)} */}
-				{/* <p>The latest submitted ballot was from...</p> */}
+
 				{data ? (
 					<div style={{ overflowX: "auto" }}>
 						<table {...getTableProps()} className="mt-5 table text-center">
