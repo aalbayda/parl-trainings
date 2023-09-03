@@ -59,7 +59,7 @@ function Navigation() {
 						<Nav.Link as={Link} to="/standings">
 							Standings
 						</Nav.Link>
-						<Nav.Link as={Link} to="/standings">
+						<Nav.Link as={Link} to="/records">
 							Records
 						</Nav.Link>
 					</Nav>

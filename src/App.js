@@ -7,7 +7,7 @@ import Navigation from "./Navigation.js";
 import Feedback from "./Feedback";
 import Motions from "./Motions";
 import Standings from "./Standings";
-import Trainings from "./Trainings";
+import Records from "./Records";
 
 function App() {
 	return (
@@ -19,7 +19,7 @@ function App() {
 				<Route path="/feedback" element={<Feedback />} />
 				<Route path="/motions" element={<Motions />} />
 				<Route path="/standings" element={<Standings />} />
-				<Route path="/trainings" element={<Trainings />} />
+				<Route path="/records" element={<Records />} />
 			</Routes>
 		</Router>
 	);

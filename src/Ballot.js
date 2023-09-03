@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import { Container, Form, Row, Col, Button } from "react-bootstrap";
+import {
+	Container,
+	Form,
+	Row,
+	Col,
+	Button,
+	InputGroup,
+	DropdownButton,
+	Dropdown,
+} from "react-bootstrap";
 import {
 	collection,
 	addDoc,
@@ -34,7 +43,6 @@ function Ballot() {
 			});
 	};
 	// Error modal
-	const [duplicateBallot, setDuplicateBallot] = useState(false);
 	const [showErrorModal, setShowErrorModal] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 	const showError = (message) => {
@@ -87,6 +95,8 @@ function Ballot() {
 
 	const [motion, setMotion] = useState("");
 	const [theme, setTheme] = useState("");
+	const [hasInfoslide, setHasInfoslide] = useState(false);
+	const [infoslide, setInfoslide] = useState("");
 
 	// Confirm ballot modal
 	const [showModal, setShowModal] = useState(false);
@@ -196,6 +206,13 @@ function Ballot() {
 		}
 		if (!motion) {
 			showError("Missing motion!");
+			return;
+		}
+		// Error: missing infoslide
+		if (hasInfoslide && !infoslide) {
+			showError(
+				"You've indicated that the motion has an infoslide but the infoslide box is empty!"
+			);
 			return;
 		}
 		// Error: missing name(s)
@@ -370,6 +387,7 @@ function Ballot() {
 			chair,
 			panelists: panelists.filter((p) => p !== ""),
 			motion,
+			infoslide,
 			theme,
 			date,
 			time,
@@ -509,8 +527,8 @@ function Ballot() {
 						Attendance is based on ballots. Only chairs should submit this form.
 						<br></br>In the event of an ironperson, select "Ironperson" from the
 						dropdown.
-						<br></br>Judges' attendance is noted here but they should still be
-						scored via the feedback form.
+						<br></br>Don't forget to also score your panel via the feedback
+						form.
 					</p>
 					<Row className="mt-5">
 						<Form.Group as={Col}>
@@ -543,7 +561,7 @@ function Ballot() {
 							</Form.Select>
 						</Form.Group>
 					</Row>
-					<Row className="mt-5">
+					<Row className="mt-4">
 						<Form.Group as={Col}>
 							<Form.Label>Motion Theme</Form.Label>
 							<Form.Select
@@ -562,15 +580,42 @@ function Ballot() {
 								<option value="movements">Social Movements</option>
 							</Form.Select>
 						</Form.Group>
-						<Form.Group as={Col} xs={8}>
+						<Form.Group as={Col} xs={7}>
 							<Form.Label>Motion</Form.Label>
-							<Form.Control
-								onChange={(e) => setMotion(e.target.value)}
-								placeholder="Enter motion"
-								type="text"
-							/>
+							<InputGroup>
+								<Form.Control
+									onChange={(e) => setMotion(e.target.value)}
+									placeholder="Enter motion"
+									type="text"
+									value={motion}
+								/>
+								<Button
+									onClick={() => setHasInfoslide(!hasInfoslide)}
+									as={InputGroup.Append}
+									variant="secondary"
+								>
+									{hasInfoslide ? "Remove Infoslide" : "Add Infoslide"}
+								</Button>
+							</InputGroup>
 						</Form.Group>
 					</Row>
+					{hasInfoslide ? (
+						<Row className="mt-4">
+							{" "}
+							<Form.Group>
+								<Form.Label>Infoslide</Form.Label>
+
+								<Form.Control
+									onChange={(e) => setInfoslide(e.target.value)}
+									placeholder="Enter infoslide"
+									type="textarea"
+									value={infoslide}
+								/>
+							</Form.Group>
+						</Row>
+					) : (
+						<></>
+					)}
 					<Col>
 						<Row className="mt-5">
 							<BallotField
@@ -592,7 +637,7 @@ function Ballot() {
 						</Row>
 						{format !== "PMLO" ? (
 							<div>
-								<Row className="mt-5">
+								<Row className="mt-4">
 									<BallotField
 										role="DPM"
 										selectedName={dpmName}
@@ -611,7 +656,7 @@ function Ballot() {
 									/>
 								</Row>
 								{format === "BP" ? (
-									<Row className="mt-5">
+									<Row className="mt-4">
 										<BallotField
 											role="MG"
 											selectedName={mgName}
@@ -633,7 +678,7 @@ function Ballot() {
 									<></>
 								)}
 								{format !== "BPHalf" ? (
-									<Row className="mt-5">
+									<Row className="mt-4">
 										<BallotField
 											role="GW"
 											selectedName={gwName}

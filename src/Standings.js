@@ -50,11 +50,11 @@ const Standings = () => {
 					Residents' standings since September 1, 2023 based on submitted
 					ballots and feedback.
 				</p>
-				{decryptToken().tabName === "Bob Albayda" ? (
+				{/* {decryptToken().tabName === "Bob Albayda" ? (
 					<button onClick={reset_db}>RESET DB</button>
 				) : (
 					<></>
-				)}
+				)} */}
 				{/* <p>The latest submitted ballot was from...</p> */}
 				{data ? (
 					<div style={{ overflowX: "auto" }}>
