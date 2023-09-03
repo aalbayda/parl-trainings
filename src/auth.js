@@ -2,7 +2,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import cookie from "cookie";
 import CryptoJS from "crypto-js";
-const key = "e8NjIshxJVGbsM4NSSL5brg8pkCFj37I";
+const key = "e9MjIshxJOGbsM5NSSL5brg8pkCFj37@";
 
 export const decryptToken = () => {
 	if (document.cookie)
