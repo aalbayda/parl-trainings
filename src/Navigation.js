@@ -59,14 +59,14 @@ function Navigation() {
 						<Nav.Link as={Link} to="/standings">
 							Standings
 						</Nav.Link>
-						<Nav.Link as={Link} to="/records">
-							Records
+						<Nav.Link as={Link} to="/rounds">
+							Rounds
 						</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
 				<Navbar.Collapse className="justify-content-end">
 					<Nav>
-						{loggedIn === true ? <Nav.Link>Profile</Nav.Link> : <></>}
+						{/* {loggedIn === true ? <Nav.Link>Profile</Nav.Link> : <></>} */}
 						<Nav.Link onClick={loggedIn === true ? logout : signInWithGoogle}>
 							{loggedIn === true ? "Logout" : "Login"}
 						</Nav.Link>

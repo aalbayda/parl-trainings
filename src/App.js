@@ -19,7 +19,7 @@ function App() {
 				<Route path="/feedback" element={<Feedback />} />
 				<Route path="/motions" element={<Motions />} />
 				<Route path="/standings" element={<Standings />} />
-				<Route path="/records" element={<Records />} />
+				<Route path="/rounds" element={<Records />} />
 			</Routes>
 		</Router>
 	);
