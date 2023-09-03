@@ -34,6 +34,7 @@ function Ballot() {
 			});
 	};
 	// Error modal
+	const [duplicateBallot, setDuplicateBallot] = useState(false);
 	const [showErrorModal, setShowErrorModal] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 	const showError = (message) => {
@@ -54,7 +55,6 @@ function Ballot() {
 			firebase_residents = firebase_residents.filter(
 				(resident) => resident.name !== decryptToken()["tabName"]
 			);
-			console.log(firebase_residents);
 			setResidents(firebase_residents);
 		});
 	}, []);
@@ -86,7 +86,6 @@ function Ballot() {
 	const [panelists, setPanelists] = useState(["", "", "", "", "", ""]);
 
 	const [motion, setMotion] = useState("");
-	const [infoslide, setInfoslide] = useState("");
 	const [theme, setTheme] = useState("");
 
 	// Confirm ballot modal
@@ -96,14 +95,14 @@ function Ballot() {
 	};
 	const handleConfirm = () => {
 		const speakerScores = [
-			pmScore,
-			loScore,
-			dpmScore,
-			dloScore,
-			mgScore,
-			moScore,
-			gwScore,
-			owScore,
+			parseInt(pmScore),
+			parseInt(loScore),
+			parseInt(dpmScore),
+			parseInt(dloScore),
+			parseInt(mgScore),
+			parseInt(moScore),
+			parseInt(gwScore),
+			parseInt(owScore),
 		];
 		const speakerRoles = ["PM", "LO", "DPM", "DLO", "MG", "MO", "GW", "OW"];
 		const findTeam = (role) => {
@@ -157,7 +156,6 @@ function Ballot() {
 							(data.average_speaker_score * data.count_rounds_debated +
 								speakerScores[speakerNames.indexOf(speaker)]) /
 							(data.count_rounds_debated + 1),
-						rounds: [...data.rounds, { ballot, position, rank }],
 						rounds_won: rank === "1st" ? data.rounds_won + 1 : data.rounds_won,
 					});
 				});
@@ -190,7 +188,7 @@ function Ballot() {
 		handleClose();
 	};
 
-	const handleUpdate = () => {
+	const handleUpdate = async () => {
 		// Error: missing motion
 		if (!theme) {
 			showError("Missing motion theme!");
@@ -350,6 +348,20 @@ function Ballot() {
 					Array.from(intersection).join(", ") +
 					"."
 			);
+			return;
+		}
+
+		// Error: Duplicate ballot
+		let collectionRef = collection(db, "ballots");
+		let q = query(
+			collectionRef,
+			where("chair", "==", chair),
+			where("time", "==", time),
+			where("date", "==", date)
+		);
+		let querySnapshot = await getDocs(q);
+		if (querySnapshot.size > 0) {
+			showError("You've already submitted a ballot for this date and time!");
 			return;
 		}
 
@@ -518,7 +530,7 @@ function Ballot() {
 								<option value="7PM">7PM</option>
 							</Form.Select>
 						</Form.Group>
-						<Form.Group xs={6} as={Col}>
+						<Form.Group xs={12} md={6} as={Col}>
 							<Form.Label>Format</Form.Label>
 							<Form.Select onChange={handleFormat}>
 								<option value="BP">British Parliamentary (Full Set)</option>
@@ -539,15 +551,15 @@ function Ballot() {
 								className="mt-1"
 							>
 								<option value="">--Select Motion Theme--</option>
-								<option value="ir">International Relations</option>
-								<option value="intl_politics">Politics</option>
-								<option value="cjs">Criminal Justice</option>
-								<option value="philosophy">Philosophy</option>
 								<option value="art">Art</option>
-								<option value="media">Media</option>
-								<option value="movements">Social Movements</option>
+								<option value="cjs">Criminal Justice</option>
 								<option value="econ">Economics and Finance</option>
+								<option value="ir">International Relations</option>
+								<option value="media">Media and Narratives</option>
+								<option value="philosophy">Philosophy</option>
+								<option value="intl_politics">Politics</option>
 								<option value="religion">Religion</option>
+								<option value="movements">Social Movements</option>
 							</Form.Select>
 						</Form.Group>
 						<Form.Group as={Col} xs={8}>
@@ -647,7 +659,6 @@ function Ballot() {
 							<></>
 						)}
 					</Col>
-
 					<Row className="mt-5">
 						<Form.Group as={Col}>
 							<Form.Label>Number of Panelists (excluding yourself)</Form.Label>
@@ -682,7 +693,6 @@ function Ballot() {
 							))}
 						</Form.Group>
 					</Row>
-
 					<Row className="mt-5">
 						<Button onClick={handleUpdate} variant="success">
 							Submit Ballot
@@ -703,6 +713,7 @@ function Ballot() {
 			) : (
 				<p>You need to be logged in to enter ballots.</p>
 			)}
+			&nbsp;
 		</Container>
 	);
 }

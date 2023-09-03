@@ -3,6 +3,8 @@ import { db } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useTable, useSortBy } from "react-table";
+import { reset_db } from "./update_db";
+import { decryptToken } from "./auth";
 
 const columns = [
 	{ Header: "Name", accessor: "name" },
@@ -48,7 +50,12 @@ const Standings = () => {
 					Residents' standings since September 1, 2023 based on submitted
 					ballots and feedback.
 				</p>
-				<p>The latest submitted ballot was from...</p>
+				{decryptToken().tabName === "Bob Albayda" ? (
+					<button onClick={reset_db}>RESET DB</button>
+				) : (
+					<></>
+				)}
+				{/* <p>The latest submitted ballot was from...</p> */}
 				{data ? (
 					<div style={{ overflowX: "auto" }}>
 						<table {...getTableProps()} className="mt-5 table text-center">
