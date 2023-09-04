@@ -258,6 +258,21 @@ function Ballot() {
 			}
 		}
 
+		// Error: missing guest name(s)
+		let missingGuests = [];
+		if (pmName === "guest" && !pmGuestName) missingGuests.push("PM");
+		if (loName === "guest" && !pmGuestName) missingGuests.push("LO");
+		if (dpmName === "guest" && !dpmGuestName) missingGuests.push("DPM");
+		if (dloName === "guest" && !dloGuestName) missingGuests.push("DLO");
+		if (mgName === "guest" && !mgGuestName) missingGuests.push("MG");
+		if (moName === "guest" && !moGuestName) missingGuests.push("MO");
+		if (gwName === "guest" && !gwGuestName) missingGuests.push("GW");
+		if (owName === "guest" && !owGuestName) missingGuests.push("OW");
+		if (missingGuests.length > 0) {
+			showError("Missing guest name(s) for: " + missingGuests.join(", ") + ".");
+			return;
+		}
+
 		// Error: missing score(s)
 		const missingScores = [];
 		if (pmName && !pmScore) missingScores.push("PM");
