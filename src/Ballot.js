@@ -74,6 +74,14 @@ function Ballot() {
 	const [moName, setMOName] = useState("");
 	const [gwName, setGWName] = useState("");
 	const [owName, setOWName] = useState("");
+	const [pmGuestName, setPMGuestName] = useState("");
+	const [loGuestName, setLOGuestName] = useState("");
+	const [dpmGuestName, setDPMGuestName] = useState("");
+	const [dloGuestName, setDLOGuestName] = useState("");
+	const [mgGuestName, setMGGuestName] = useState("");
+	const [moGuestName, setMOGuestName] = useState("");
+	const [gwGuestName, setGWGuestName] = useState("");
+	const [owGuestName, setOWGuestName] = useState("");
 	const [pmScore, setPMScore] = useState("");
 	const [loScore, setLOScore] = useState("");
 	const [dpmScore, setDPMScore] = useState("");
@@ -304,7 +312,11 @@ function Ballot() {
 		const unique_names = new Set();
 		let duplicate_names = [];
 		for (const speakerName of speakerNames) {
-			if (speakerName && speakerName !== "iron" && speakerName !== "guest") {
+			if (
+				speakerName &&
+				speakerName !== "Ironperson" &&
+				speakerName !== "guest"
+			) {
 				if (unique_names.has(speakerName)) {
 					duplicate_names.push(speakerName);
 				} else {
@@ -383,21 +395,29 @@ function Ballot() {
 			date,
 			time,
 			format,
-			pmName,
+			pmGuestName,
+			loGuestName,
+			dpmGuestName,
+			dloGuestName,
+			mgGuestName,
+			moGuestName,
+			gwGuestName,
+			owGuestName,
+			pmName: pmName === "guest" ? pmGuestName : pmName,
 			pmScore,
-			loName,
+			loName: loName === "guest" ? loGuestName : loName,
 			loScore,
-			dpmName,
+			dpmName: dpmName === "guest" ? dpmGuestName : dpmName,
 			dpmScore,
-			dloName,
+			dloName: dloName === "guest" ? dloGuestName : dloName,
 			dloScore,
-			mgName,
+			mgName: mgName === "guest" ? mgGuestName : mgName,
 			mgScore,
-			moName,
+			moName: moName === "guest" ? moGuestName : moName,
 			moScore,
-			gwName,
+			gwName: gwName === "guest" ? gwGuestName : gwName,
 			gwScore,
-			owName,
+			owName: owName === "guest" ? owGuestName : owName,
 			owScore,
 			first: "",
 			second: "",
@@ -614,6 +634,8 @@ function Ballot() {
 						<Row className="mt-5">
 							<BallotField
 								role="PM"
+								guestName={pmGuestName}
+								handleGuestName={setPMGuestName}
 								selectedName={pmName}
 								selectedScore={pmScore}
 								residents={residents}
@@ -622,6 +644,8 @@ function Ballot() {
 							/>
 							<BallotField
 								role="LO"
+								guestName={loGuestName}
+								handleGuestName={setDLOGuestName}
 								selectedName={loName}
 								selectedScore={loScore}
 								residents={residents}
@@ -634,6 +658,8 @@ function Ballot() {
 								<Row className="mt-4">
 									<BallotField
 										role="DPM"
+										guestName={dpmGuestName}
+										handleGuestName={setDPMGuestName}
 										selectedName={dpmName}
 										selectedScore={dpmScore}
 										residents={residents}
@@ -642,6 +668,8 @@ function Ballot() {
 									/>
 									<BallotField
 										role="DLO"
+										guestName={dloGuestName}
+										handleGuestName={setDLOGuestName}
 										selectedName={dloName}
 										selectedScore={dloScore}
 										residents={residents}
@@ -653,6 +681,8 @@ function Ballot() {
 									<Row className="mt-4">
 										<BallotField
 											role="MG"
+											guestName={mgGuestName}
+											handleGuestName={setMGGuestName}
 											selectedName={mgName}
 											selectedScore={mgScore}
 											residents={residents}
@@ -661,6 +691,8 @@ function Ballot() {
 										/>
 										<BallotField
 											role="MO"
+											guestName={moGuestName}
+											handleGuestName={setMOGuestName}
 											selectedName={moName}
 											selectedScore={moScore}
 											residents={residents}
@@ -675,6 +707,8 @@ function Ballot() {
 									<Row className="mt-4">
 										<BallotField
 											role="GW"
+											guestName={gwGuestName}
+											handleGuestName={setGWGuestName}
 											selectedName={gwName}
 											selectedScore={gwScore}
 											residents={residents}

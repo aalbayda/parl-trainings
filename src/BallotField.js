@@ -3,6 +3,8 @@ import { Form, Col } from "react-bootstrap";
 
 function BallotField({
 	role,
+	guestName,
+	handleGuestName,
 	selectedName,
 	selectedScore,
 	handleName,
@@ -30,8 +32,8 @@ function BallotField({
 						))}
 				</optgroup>
 				<optgroup label="Edge Cases">
-					<option value="iron">Ironperson</option>
-					<option value="guest">Guest</option>
+					<option value="Ironperson">Ironperson</option>
+					<option value="guest">Alum / Non-Parl</option>
 				</optgroup>
 			</Form.Select>
 			{selectedName === "guest" ? (
@@ -39,9 +41,10 @@ function BallotField({
 					className="mt-1"
 					min="50"
 					max="100"
-					placeholder="Name of guest or alum"
+					placeholder="Name of guest speaker"
 					type="text"
-					onChange={(e) => handleName(e.target.value)}
+					value={guestName}
+					onChange={(e) => handleGuestName(e.target.value)}
 				></Form.Control>
 			) : (
 				<></>
