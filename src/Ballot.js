@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
-import {
-	Container,
-	Form,
-	Row,
-	Col,
-	Button,
-	InputGroup,
-	DropdownButton,
-	Dropdown,
-} from "react-bootstrap";
+import { Container, Form, Row, Col, Button, InputGroup } from "react-bootstrap";
 import {
 	collection,
 	addDoc,
@@ -583,7 +574,7 @@ function Ballot() {
 								<option value="movements">Social Movements</option>
 							</Form.Select>
 						</Form.Group>
-						<Form.Group as={Col} xs={7}>
+						<Form.Group as={Col} xs={12} md={7}>
 							<Form.Label>Motion</Form.Label>
 							<InputGroup>
 								<Form.Control

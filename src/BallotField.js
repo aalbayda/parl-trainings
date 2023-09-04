@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Form, Row, Col, Button } from "react-bootstrap";
+import { Form, Col } from "react-bootstrap";
 
 function BallotField({
 	role,
@@ -34,6 +34,18 @@ function BallotField({
 					<option value="guest">Guest</option>
 				</optgroup>
 			</Form.Select>
+			{selectedName === "guest" ? (
+				<Form.Control
+					className="mt-1"
+					min="50"
+					max="100"
+					placeholder="Name of guest or alum"
+					type="text"
+					onChange={(e) => handleName(e.target.value)}
+				></Form.Control>
+			) : (
+				<></>
+			)}
 			{selectedName ? (
 				<Form.Control
 					className="mt-1"

@@ -16,6 +16,15 @@ function Navigation() {
 		setLoggedIn(false);
 	};
 
+	const signIn = () => {
+		signInWithGoogle();
+		// if (isMobile) {
+		// 	signInWithGoogleMobile();
+		// } else {
+		// 	signInWithGoogleMobile();
+		// }
+	};
+
 	const checkIsLoggedIn = async () => {
 		return await isLoggedIn()
 			.then((res) => setLoggedIn(res))
@@ -78,16 +87,7 @@ function Navigation() {
 				</Navbar.Collapse>
 				<Navbar.Collapse className="justify-content-end">
 					<Nav>
-						{/* {loggedIn === true ? <Nav.Link>Profile</Nav.Link> : <></>} */}
-						<Nav.Link
-							onClick={
-								loggedIn === true
-									? logout
-									: !isMobile
-									? signInWithGoogle
-									: signInWithGoogleMobile
-							}
-						>
+						<Nav.Link onClick={loggedIn === true ? logout : signIn}>
 							{loggedIn === true ? "Logout" : "Login"}
 						</Nav.Link>
 					</Nav>
