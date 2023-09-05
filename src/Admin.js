@@ -1,15 +1,15 @@
 import React from "react";
 import { decryptToken } from "./auth";
-import { reset_db } from "./update_db";
+import { reset_db, add_db } from "./update_db";
 
 function Admin() {
 	return (
 		<>
-			{/* {decryptToken().tabName === "Bob Albayda" ? (
-				<button onClick={reset_db}>RESET DB</button>
+			{decryptToken().tabName === "Bob Albayda" ? (
+				<button onClick={add_db}>ADD DB</button>
 			) : (
 				<></>
-			)} */}
+			)}
 		</>
 	);
 }

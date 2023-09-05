@@ -9,6 +9,7 @@ import Motions from "./Motions";
 import Standings from "./Standings";
 import Records from "./Records";
 import Admin from "./Admin";
+import LouiseBallot from "./LouiseBallot";
 
 function App() {
 	return (
@@ -22,6 +23,7 @@ function App() {
 				<Route path="/standings" element={<Standings />} />
 				<Route path="/rounds" element={<Records />} />
 				<Route path="/admin" element={<Admin />} />
+				<Route path="/louise" element={<LouiseBallot />} />
 			</Routes>
 		</Router>
 	);

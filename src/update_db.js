@@ -28,15 +28,8 @@ export const reset_db = async () => {
 export const add_db = () => {
 	const collectionRef = collection(db, "residents");
 	const new_residents = [
-		{ name: "Aisaac Sarmiento", track: "Admin" },
-		{ name: "Therese Sagadraca", track: "Admin" },
-		{ name: "Loys Talip", track: "Admin" },
-		{ name: "Abram Asi", track: "Inactive" },
-		{ name: "Ace Bayoneta", track: "Inactive" },
-		{ name: "Luwi Manganip", track: "Inactive" },
-		{ name: "Fhey del Rosario", track: "Inactive" },
-		{ name: "Adrian Torres", track: "Inactive" },
-		{ name: "DJ Ugalino", track: "Inactive" },
+		{ name: "Kyle Germita", track: "Admin" },
+		{ name: "Sophia Bautista", track: "Admin" },
 	];
 	new_residents.map((new_resident) => {
 		addDoc(collectionRef, new_resident)

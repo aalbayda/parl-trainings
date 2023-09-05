@@ -79,7 +79,6 @@ function Records() {
 			}));
 			setBallots(ballots);
 		});
-		console.log(ballots);
 	}, []);
 
 	return (
@@ -104,24 +103,26 @@ function Records() {
 									ballots
 										.slice()
 										.sort((a, b) => {
-											if (a.date && b.date) {
-												const date1 = a.date;
-												const date2 = b.date;
-												const parts1 = date1.split("-");
-												const parts2 = date2.split("-");
-												const dateObj1 = new Date(
-													parts1[0],
-													parts1[2] - 1,
-													parts1[1]
-												);
-												const dateObj2 = new Date(
-													parts2[0],
-													parts2[2] - 1,
-													parts2[1]
-												);
-												return dateObj1 - dateObj2;
-											}
+											return parseInt(b.time[0]) - parseInt(a.time[0]);
 										})
+										.sort((a, b) => {
+											const date1 = a.date;
+											const date2 = b.date;
+											const parts1 = date1.split("-");
+											const parts2 = date2.split("-");
+											const dateObj1 = new Date(
+												parts1[0],
+												parts1[2] - 1,
+												parts1[1]
+											);
+											const dateObj2 = new Date(
+												parts2[0],
+												parts2[2] - 1,
+												parts2[1]
+											);
+											return dateObj2 - dateObj1;
+										})
+
 										.map((ballot) =>
 											ballot.date ? (
 												<tr key={ballot.id}>
@@ -137,7 +138,16 @@ function Records() {
 														{parseFormat(ballot.format)}
 													</td>
 													<td style={{ verticalAlign: "middle" }}>
-														{ballot.motion}
+														{ballot.infoslide ? (
+															<span
+																style={{ cursor: "pointer" }}
+																onClick={() => handleOpen(ballot.id)}
+															>
+																ℹ️ {ballot.motion}
+															</span>
+														) : (
+															ballot.motion
+														)}
 													</td>
 													<td style={{ verticalAlign: "middle", width: "20%" }}>
 														{ballot.panelists.length > 0
