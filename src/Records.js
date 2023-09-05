@@ -63,7 +63,7 @@ function parseTeams(ballot) {
 
 function Records() {
 	const [ballots, setBallots] = useState([]);
-	const [modals, setModals] = useState({});
+	const [isInfoslide, setIsInfoslide] = useState(false);
 	const [showModal, setShowModal] = useState(null);
 	const handleOpen = (modalId) => {
 		setShowModal(modalId);
@@ -141,7 +141,10 @@ function Records() {
 														{ballot.infoslide ? (
 															<span
 																style={{ cursor: "pointer" }}
-																onClick={() => handleOpen(ballot.id)}
+																onClick={() => {
+																	setIsInfoslide(true);
+																	handleOpen(ballot.id);
+																}}
 															>
 																ℹ️ {ballot.motion}
 															</span>
@@ -161,7 +164,12 @@ function Records() {
 													</td>
 
 													<td style={{ verticalAlign: "middle", width: "15%" }}>
-														<Button onClick={() => handleOpen(ballot.id)}>
+														<Button
+															onClick={() => {
+																setIsInfoslide(false);
+																handleOpen(ballot.id);
+															}}
+														>
 															View
 														</Button>
 													</td>
@@ -186,7 +194,12 @@ function Records() {
 								style={{ display: showModal === item.id ? "block" : "none" }}
 							>
 								{showModal === item.id && (
-									<ViewBallot ballot={item} show={true} onClose={handleClose} />
+									<ViewBallot
+										ballot={item}
+										isInfoslide={isInfoslide}
+										show={true}
+										onClose={handleClose}
+									/>
 								)}
 							</div>
 						))}
