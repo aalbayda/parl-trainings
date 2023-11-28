@@ -3,16 +3,14 @@ import { db } from "./firebase";
 import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useTable, useSortBy } from "react-table";
-import { reset_db, add_db } from "./update_db";
-import { decryptToken } from "./auth";
 
 const columns = [
 	{ Header: "Name", accessor: "name" },
-	// { Header: "Track", accessor: "track" },
 	{ Header: "Total Attendance", accessor: "attendance" },
 	{ Header: "Rounds Debated", accessor: "count_rounds_debated" },
-	{ Header: "Number of Wins", accessor: "rounds_won" },
 	{ Header: "Average Speaker Score", accessor: "average_speaker_score" },
+	// { Header: "Weighted Speaks", accessor: "weighted_speaks" },
+	{ Header: "Number of Wins", accessor: "rounds_won" },
 	{ Header: "Rounds Judged", accessor: "count_rounds_judged" },
 	{ Header: "Average Judge Score", accessor: "average_judge_score" },
 ];
@@ -30,6 +28,19 @@ const Standings = () => {
 				(resident) =>
 					resident.track !== "Inactive" && resident.track !== "Admin"
 			);
+			residents.forEach((resident) => {
+				resident["weighted_speaks"] = (
+					resident["count_rounds_debated"] * 0.65 +
+					resident["average_speaker_score"] * 0.35
+				).toFixed(2);
+				resident["average_speaker_score"] = resident["average_speaker_score"]
+					? resident["average_speaker_score"].toFixed(2)
+					: 0;
+
+				resident["average_judge_score"] = resident["average_judge_score"]
+					? resident["average_judge_score"].toFixed(2)
+					: 0;
+			});
 			setData(residents);
 		});
 	}, []);

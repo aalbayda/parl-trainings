@@ -9,7 +9,10 @@ import Motions from "./Motions";
 import Standings from "./Standings";
 import Records from "./Records";
 import Admin from "./Admin";
-import LouiseBallot from "./LouiseBallot";
+import BelleBallot from "./BelleBallot";
+import ArmiBallot from "./ArmiBallot";
+import FarleyBallot from "./FarleyBallot";
+import Backlogs from "./Backlogs";
 
 function App() {
 	return (
@@ -23,7 +26,10 @@ function App() {
 				<Route path="/standings" element={<Standings />} />
 				<Route path="/rounds" element={<Records />} />
 				<Route path="/admin" element={<Admin />} />
-				<Route path="/louise" element={<LouiseBallot />} />
+				<Route path="/backlogs" element={<Backlogs />} />
+				<Route path="/belle" element={<BelleBallot />} />
+				<Route path="/armi" element={<ArmiBallot />} />
+				<Route path="/farley" element={<FarleyBallot />} />
 			</Routes>
 		</Router>
 	);

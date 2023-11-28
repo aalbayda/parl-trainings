@@ -14,24 +14,16 @@ import { db } from "./firebase";
 import BallotField from "./BallotField";
 import ConfirmBallot from "./ConfirmBallot";
 import ErrorModal from "./ErrorModal";
-import { isLoggedIn, decryptToken } from "./auth";
 
-function Ballot() {
+function BelleBallot() {
 	// Data
-	const [chair, setChair] = useState("");
+	const [chair, setChair] = useState("Eldridge Hubilla");
 	const [residents, setResidents] = useState([]);
 	const [ballot, setBallot] = useState({});
 	// Authentication
 	const [loggedIn, setLoggedIn] = useState(true);
 	const checkIsLoggedIn = async () => {
-		return await isLoggedIn()
-			.then((res) => {
-				setChair(decryptToken().tabName);
-				setLoggedIn(res);
-			})
-			.catch((err) => {
-				console.error(err);
-			});
+		return true;
 	};
 	// Error modal
 	const [showErrorModal, setShowErrorModal] = useState(false);
@@ -51,12 +43,9 @@ function Ballot() {
 				...doc.data(),
 				id: doc.id,
 			}));
-			let tabName = decryptToken()["tabName"];
-			if (tabName) {
-				firebase_residents = firebase_residents.filter(
-					(resident) => resident.name.toLowerCase() !== tabName.toLowerCase()
-				);
-			}
+			firebase_residents = firebase_residents.filter(
+				(resident) => resident.name !== chair
+			);
 			setResidents(firebase_residents);
 		});
 	}, []);
@@ -526,7 +515,7 @@ function Ballot() {
 			setMGScore("");
 			setMOScore("");
 		}
-		if (newFormat === "BPHalf" || newFormat === "PMLO") {
+		if (newFormat === "BPHalf" || newFormat == "PMLO") {
 			setGWName("");
 			setOWName("");
 			setGWScore("");
@@ -571,6 +560,7 @@ function Ballot() {
 						</Form.Group>
 						<Form.Group as={Col}>
 							<Form.Label>Time</Form.Label>
+
 							{date === "2023-09-09" ? (
 								<Form.Select onChange={(e) => setTime(e.target.value)}>
 									<option value="R1">Intensives R1</option>
@@ -824,4 +814,4 @@ function Ballot() {
 	);
 }
 
-export default Ballot;
+export default BelleBallot;

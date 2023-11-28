@@ -14,7 +14,6 @@ import { db } from "./firebase";
 import BallotField from "./BallotField";
 import ConfirmBallot from "./ConfirmBallot";
 import ErrorModal from "./ErrorModal";
-import { isLoggedIn, decryptToken } from "./auth";
 
 function LouiseBallot() {
 	// Data
@@ -58,7 +57,7 @@ function LouiseBallot() {
 			"0"
 		)}-${String(new Date().getDate()).padStart(2, "0")}`
 	);
-	const [time, setTime] = useState("3PM");
+	const [time, setTime] = useState(date === "2023-09-09" ? "R1" : "3PM");
 	const [pmName, setPMName] = useState("");
 	const [loName, setLOName] = useState("");
 	const [dpmName, setDPMName] = useState("");
@@ -561,11 +560,19 @@ function LouiseBallot() {
 						</Form.Group>
 						<Form.Group as={Col}>
 							<Form.Label>Time</Form.Label>
-							<Form.Select onChange={(e) => setTime(e.target.value)}>
-								<option value="3PM">3PM</option>
-								<option value="5PM">5PM</option>
-								<option value="7PM">7PM</option>
-							</Form.Select>
+							{date === "2023-09-09" ? (
+								<Form.Select onChange={(e) => setTime(e.target.value)}>
+									<option value="R1">Intensives R1</option>
+									<option value="R2">Intensives R2</option>
+									<option value="R3">Intensives R3</option>
+								</Form.Select>
+							) : (
+								<Form.Select onChange={(e) => setTime(e.target.value)}>
+									<option value="3PM">3PM</option>
+									<option value="5PM">5PM</option>
+									<option value="7PM">7PM</option>
+								</Form.Select>
+							)}
 						</Form.Group>
 						<Form.Group xs={12} md={6} as={Col}>
 							<Form.Label>Format</Form.Label>
@@ -591,6 +598,8 @@ function LouiseBallot() {
 								<option value="art">Art</option>
 								<option value="cjs">Criminal Justice</option>
 								<option value="econ">Economics</option>
+								<option value="educ">Education</option>
+								<option value="family">Family</option>
 								<option value="feminism">Feminism</option>
 								<option value="finance">Finance</option>
 								<option value="gender">Gender</option>
@@ -599,6 +608,7 @@ function LouiseBallot() {
 								<option value="philosophy">Philosophy</option>
 								<option value="intl_politics">Politics</option>
 								<option value="religion">Religion</option>
+								<option value="science">Science</option>
 								<option value="movements">Social Movements</option>
 							</Form.Select>
 						</Form.Group>
@@ -725,6 +735,8 @@ function LouiseBallot() {
 										/>
 										<BallotField
 											role="OW"
+											guestName={owGuestName}
+											handleGuestName={setOWGuestName}
 											selectedName={owName}
 											selectedScore={owScore}
 											residents={residents}

@@ -103,9 +103,6 @@ function Records() {
 									ballots
 										.slice()
 										.sort((a, b) => {
-											return parseInt(b.time[0]) - parseInt(a.time[0]);
-										})
-										.sort((a, b) => {
 											const date1 = a.date;
 											const date2 = b.date;
 											const parts1 = date1.split("-");
@@ -113,16 +110,19 @@ function Records() {
 											const dateObj1 = new Date(
 												parts1[0],
 												parts1[2] - 1,
-												parts1[1]
+												parts1[1],
+												a.date === "2023-09-09" ? 0 : parseInt(a.time[0])
+												// a.time[0]
 											);
 											const dateObj2 = new Date(
 												parts2[0],
 												parts2[2] - 1,
-												parts2[1]
+												parts2[1],
+												b.date === "2023-09-09" ? 0 : parseInt(b.time[0])
+												// b.time[0]
 											);
 											return dateObj2 - dateObj1;
 										})
-
 										.map((ballot) =>
 											ballot.date ? (
 												<tr key={ballot.id}>
@@ -132,7 +132,10 @@ function Records() {
 															month: "short",
 															day: "numeric",
 														})}
-														, {ballot.time}
+														,{" "}
+														{ballot.date === "2023-09-09"
+															? "Intensives " + ballot.time
+															: ballot.time}
 													</td>
 													<td style={{ verticalAlign: "middle" }}>
 														{parseFormat(ballot.format)}

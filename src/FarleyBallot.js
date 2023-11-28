@@ -14,24 +14,16 @@ import { db } from "./firebase";
 import BallotField from "./BallotField";
 import ConfirmBallot from "./ConfirmBallot";
 import ErrorModal from "./ErrorModal";
-import { isLoggedIn, decryptToken } from "./auth";
 
-function Ballot() {
+function FarleyBallot() {
 	// Data
-	const [chair, setChair] = useState("");
+	const [chair, setChair] = useState("Farley Bermeo");
 	const [residents, setResidents] = useState([]);
 	const [ballot, setBallot] = useState({});
 	// Authentication
 	const [loggedIn, setLoggedIn] = useState(true);
 	const checkIsLoggedIn = async () => {
-		return await isLoggedIn()
-			.then((res) => {
-				setChair(decryptToken().tabName);
-				setLoggedIn(res);
-			})
-			.catch((err) => {
-				console.error(err);
-			});
+		return true;
 	};
 	// Error modal
 	const [showErrorModal, setShowErrorModal] = useState(false);
@@ -51,12 +43,9 @@ function Ballot() {
 				...doc.data(),
 				id: doc.id,
 			}));
-			let tabName = decryptToken()["tabName"];
-			if (tabName) {
-				firebase_residents = firebase_residents.filter(
-					(resident) => resident.name.toLowerCase() !== tabName.toLowerCase()
-				);
-			}
+			firebase_residents = firebase_residents.filter(
+				(resident) => resident.name !== chair
+			);
 			setResidents(firebase_residents);
 		});
 	}, []);
@@ -526,7 +515,7 @@ function Ballot() {
 			setMGScore("");
 			setMOScore("");
 		}
-		if (newFormat === "BPHalf" || newFormat === "PMLO") {
+		if (newFormat === "BPHalf" || newFormat == "PMLO") {
 			setGWName("");
 			setOWName("");
 			setGWScore("");
@@ -746,8 +735,6 @@ function Ballot() {
 										/>
 										<BallotField
 											role="OW"
-											guestName={owGuestName}
-											handleGuestName={setOWGuestName}
 											selectedName={owName}
 											selectedScore={owScore}
 											residents={residents}
@@ -824,4 +811,4 @@ function Ballot() {
 	);
 }
 
-export default Ballot;
+export default FarleyBallot;

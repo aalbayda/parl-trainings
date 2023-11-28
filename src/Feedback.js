@@ -54,10 +54,10 @@ function Feedback() {
 				id: doc.id,
 			}));
 			firebase_residents = firebase_residents.filter(
-				(resident) => resident.name !== user
+				(resident) => resident.name.toLowerCase() !== user.toLowerCase()
 			);
 			firebase_residents = firebase_residents.filter(
-				(resident) => resident.name !== user
+				(resident) => resident.name.toLowerCase() !== user.toLowerCase()
 			);
 			setResidents(firebase_residents);
 		});
@@ -113,27 +113,28 @@ function Feedback() {
 				) {
 					ballots.push({ ...ballot, name: selectedJudge, role: "panelist" });
 				}
-				console.log(docSnapshot.data());
 			});
 		});
 		setSelectedJudgeBallots(ballots);
-		console.log(ballots);
-		console.log(selectedJudgeBallots);
 	};
 	const handleSelectedRound = (e) => {
 		setSelectedRound(JSON.parse(e.target.value));
 		let selectedRound = JSON.parse(e.target.value);
-		if (selectedRound.panelists.includes(user)) {
+		if (
+			selectedRound.panelists
+				.map((panelist) => panelist.toLowerCase())
+				.includes(user.toLowerCase())
+		) {
 			setRole("Panelist");
 		} else if (selectedRound.chair === user) {
 			setRole("Chair");
 		} else if (selectedRound.format === "AP" || selectedRound.format === "AU") {
 			if (
 				[
-					selectedRound.pmName,
-					selectedRound.dpmName,
-					selectedRound.gwName,
-				].includes(user)
+					selectedRound.pmName.toLowerCase(),
+					selectedRound.dpmName.toLowerCase(),
+					selectedRound.gwName.toLowerCase(),
+				].includes(user.toLowerCase())
 			) {
 				setRole("Gov");
 			} else if (
@@ -146,13 +147,33 @@ function Feedback() {
 				setRole("Opp");
 			}
 		} else {
-			if ([selectedRound.pmName, selectedRound.dpmName].includes(user)) {
+			if (
+				[
+					selectedRound.pmName.toLowerCase(),
+					selectedRound.dpmName.toLowerCase(),
+				].includes(user.toLowerCase())
+			) {
 				setRole("OG");
-			} else if ([selectedRound.loName, selectedRound.dloName].includes(user)) {
+			} else if (
+				[
+					selectedRound.loName.toLowerCase(),
+					selectedRound.dloName.toLowerCase(),
+				].includes(user.toLowerCase())
+			) {
 				setRole("OO");
-			} else if ([selectedRound.mgName, selectedRound.gwName].includes(user)) {
+			} else if (
+				[
+					selectedRound.mgName.toLowerCase(),
+					selectedRound.gwName.toLowerCase(),
+				].includes(user.toLowerCase())
+			) {
 				setRole("CG");
-			} else if ([selectedRound.moName, selectedRound.owName].includes(user)) {
+			} else if (
+				[
+					selectedRound.moName.toLowerCase(),
+					selectedRound.owName.toLowerCase(),
+				].includes(user.toLowerCase())
+			) {
 				setRole("CO");
 			}
 		}
